@@ -7,6 +7,12 @@
 !/viewer.ps1
 !/viewer-core.ps1
 !/viewer-ui.ps1
+!/build.ps1
+!/src/
+/src/*
+!/src/MediaInterop.cs
+!/src/CameraStream.cs
+!/src/NativeViewer.cs
 !/microscope.ps1
 !/settings.example.json
 !/00_UVC_Microscope_Viewer.cmd
@@ -18,10 +24,10 @@
 !/tools/
 /tools/*
 !/tools/README.md
-!/tools/checksums.json
 !/tests/
 /tests/*
 !/tests/smoke.ps1
+!/tests/camera.ps1
 !/docs/
 /docs/*
 !/docs/tablets.md

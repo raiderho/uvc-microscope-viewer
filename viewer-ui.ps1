@@ -158,7 +158,7 @@ function Show-ViewerMenu {
         $form.Controls.Add($button)
     }
     $note = New-Object Windows.Forms.Label
-    $note.Text = '拍照會暫停並恢復預覽。關閉此面板不會關閉預覽；請按「停止預覽」。'
+    $note.Text = '面板拍照會暫停並恢復預覽；影像視窗也可直接拍照。關閉面板會保留預覽。'
     $note.Location = New-Object Drawing.Point(20,330)
     $note.Size = New-Object Drawing.Size(600,30)
     $form.Controls.Add($note)

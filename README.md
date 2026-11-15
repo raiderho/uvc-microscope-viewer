@@ -1,59 +1,47 @@
 # UVC Microscope Viewer
 
-Windows 上用來**看 USB 電子目鏡畫面、拍照及管理照片存放位置**的小型可攜啟動工具，以 PowerShell 控制 FFmpeg／FFplay。它不需要 StrangeView，也不修改目鏡韌體。
+Windows 上用來**看 USB 電子目鏡畫面、拍 PNG、設定照片存放位置**的小型可攜工具。
 
-名稱採用通用的 UVC，沒有綁定單一型號。`TN2.0M-D` 是目前的預設設定及實際測試過的目鏡；其他型號可改設定，但仍需實機驗證。**UVC 是 USB 影像標準；UAC 是 USB 音訊標準，只有 UAC 的裝置不能提供目鏡影像。**
+輕量版直接使用 **Windows Media Foundation** 讀取相機，使用 Windows／.NET 的影像功能顯示及存檔。**不再需要 FFmpeg、FFplay、原廠 StrangeView 或額外影音套件**。自己的相機執行檔約 30 KiB，原始碼在本倉庫；不是把大型依賴搬到別處或改成線上下載。
 
-> 這是初期可用版本。保留觀看、拍照功能，避免執行原廠待審安裝包；不代表已消除 Windows、USB 韌體、驅動或影像解碼器的所有風險。
+名稱採通用 UVC；`TN2.0M-D` 是預設及已實測型號，其他型號可以改設定。**UVC 是 USB 影像標準；只有 UAC 音訊功能的裝置不能提供目鏡畫面。**
 
-實測狀態：命令列入口的預覽／拍照／恢復預覽已通過，控制面板的逐鍵操作仍待人工驗收，詳見 [測試記錄](docs/testing.md)。
+## 快速開始
 
-## 快速開始：按哪裡？
+1. 將本倉庫 ZIP 解壓縮到可寫入的資料夾。
+2. 將電子目鏡接到 USB，關閉其他占用同一台相機的程式。
+3. 雙擊 **`01_開啟電子目鏡.cmd`**。
+4. 在影像視窗按 **「拍照（PNG）」** 或**空白鍵**拍照；按 **「查看照片」** 打開儲存資料夾。
+5. 按 **Q／Esc** 或關閉影像視窗，停止預覽。
 
-1. 將完整資料夾解壓縮到可寫入的位置，不要直接在 ZIP 裡執行。GitHub 下載版需先依 [工具說明](tools/README.md) 準備 FFmpeg／FFplay；維護者的本機版本已備妥。
-2. 將電子目鏡接到 USB。關閉其他正在使用同一台相機的軟體。
-3. 雙擊 **`00_UVC_Microscope_Viewer.cmd`**，打開控制面板。
-4. 按 **「開啟預覽」** 看即時影像；按 **「拍照」** 儲存一張 PNG。
-5. 按 **「查看照片」** 開啟目前的照片資料夾，再雙擊 PNG，使用 Windows 預設圖片程式觀看。
+第一次啟動會用 Windows 內建 .NET Framework 編譯器，在本資料夾產生 `bin/UvcCapture.exe`，通常只需數秒，**不連網、不下載、不需管理員權限**。之後直接使用；原始碼更新後會重新編譯。請使用 CMD 入口，不要直接雙擊內部的 EXE。
 
-**拍照按鈕在控制面板，不在影像視窗內。** 拍照時預覽會短暫停止，完成後自動重新開啟。如果原先沒有開預覽，也可以直接拍照。
-
-影像視窗按 `Q` 或點右上角關閉即可停止；控制面板也有「停止預覽」。只關閉控制面板會保留影像視窗，不會在背景偷偷錄影。
-
-### 不開控制面板也可以用
-
-| 檔案 | 用途 |
+| 入口 | 功能 |
 | --- | --- |
-| `01_開啟電子目鏡.cmd` | 開啟設定中的相機預覽 |
-| `02_拍照.cmd` | 拍一張 PNG |
+| `00_UVC_Microscope_Viewer.cmd` | 控制面板 |
+| `01_開啟電子目鏡.cmd` | 即時預覽，視窗內可直接拍照 |
+| `02_拍照.cmd` | 拍一張 PNG；若已有預覽，短暫停止並恢復 |
 | `03_查看照片.cmd` | 開啟目前的照片資料夾 |
-| `04_設定.cmd` | 設定裝置、影像格式與照片位置 |
+| `04_設定.cmd` | 設定裝置、影像模式與照片位置 |
 | `05_停止預覽.cmd` | 關閉本工具自己的預覽 |
 
-## 功能與範圍
+影像視窗內拍照不需停止預覽。控制面板或 `02_拍照.cmd` 使用獨立擷取流程，會暫停並恢復預覽。只關閉控制面板會保留影像視窗。
 
-- 可設定相機名稱、同名裝置序號、解析度、fps、MJPEG／YUY2 輸入。
-- 即時預覽、單張 PNG、拍照後恢復預覽；不啟用麥克風。
-- 預設 `photos`，也可指定其他本機資料夾。新照片採電腦當地時間、毫秒與隨機尾碼命名，不覆寫既有照片。
-- 沒有照片自動刪除、解除安裝刪資料、自動更新、遙測、網路上傳或串流伺服器功能。
-- 不含錄影按鈕、拼圖、景深合成、比例尺校正、量測、標註或專用曝光／白平衡控制介面。
-- 不安裝驅動、不修改相機權限、不要求系統管理員，也不變更 PowerShell 執行原則。
+## 照片位置與設定
 
-## 照片存到哪裡？如何更改？
+預設存到程式資料夾下的 **`photos`**。「查看照片」開啟資料夾後，雙擊 PNG 即可用 Windows 圖片程式觀看。
 
-控制面板會顯示目前完整儲存路徑。預設是程式資料夾下的 **`photos`**。
+雙擊 `04_設定.cmd`，在「照片儲存位置」輸入路徑或選擇資料夾，再儲存。更改設定會關閉預覽，重新開啟即可使用。位置變更只影響之後的照片，舊照片不搬移、不刪除。
 
-按「設定裝置 / 照片位置」，在「照片儲存位置」輸入路徑，或按「選擇資料夾」，然後「儲存設定」。設定儲存後會停止預覽，重新按「開啟預覽」即可使用新設定。
+| 設定 | 意義 |
+| --- | --- |
+| `photos` | 預設，跟著整個程式資料夾搬移 |
+| `captures/sample-a` | 自訂相對資料夾，同樣可以攜帶 |
+| `E:\MicroscopePhotos` | 指定本機磁碟；換電腦需確認位置仍可使用 |
 
-| 設定例子 | 效果 | 搬到另一台電腦 |
-| --- | --- | --- |
-| `photos` | 儲存在程式內的 photos | 跟著整個資料夾搬移，建議使用 |
-| `captures\sample-a` | 儲存在程式內的分類資料夾 | 跟著整個資料夾搬移 |
-| `E:\MicroscopePhotos` | 儲存在指定的本機磁碟位置 | 新電腦需有相同可寫入路徑，或重新設定 |
+不接受網址或 UNC 分享路徑；相對路徑不能用 `..` 逃出程式資料夾，也不能選程式保留目錄。雲端同步或映射磁碟的行為由作業系統管理。
 
-變更位置只影響**之後**的照片，舊照片留在原處，不會搬移或刪除。網路磁碟分享路徑及網址不支援；相對路徑不可用 `..` 逃出程式資料夾。若選擇已映射的網路磁碟或雲端同步資料夾，資料是否離開本機仍取決於 Windows 或同步軟體，本程式不提供網路隔離。
-
-個人設定寫在 `settings.json`；沒有此檔時讀取 `settings.example.json`。個人設定與照片不會加入 Git。手動編輯 JSON 也可以，例如：
+個人設定在 `settings.json`，缺少時讀取 `settings.example.json`：
 
 ```json
 {
@@ -67,110 +55,94 @@ Windows 上用來**看 USB 電子目鏡畫面、拍照及管理照片存放位�
 }
 ```
 
-## 哪些電子目鏡適合？
+照片以時間加隨機尾碼命名，不覆寫舊檔。個人設定、照片與執行記錄都不提交到 Git。
 
-### 電腦與軟體條件
+## 適用條件與功能範圍
 
-- Windows 10／11 x64；目前實機驗證平台是 Windows 11 x64。
-- Windows PowerShell 5.1、.NET Framework／Windows Forms 可用，政策允許執行已審查的本機腳本。
-- 具有 DirectShow 支援的 Windows x64 FFmpeg／FFplay，放在 `tools`，雜湊符合清單。
-- Windows 允許桌面程式使用相機，儲存位置可寫入，且相機未被另一個程式獨占。
+- **Windows 10／11 x64**，具 Media Foundation、Windows PowerShell 5.1、.NET Framework 4.x／Windows Forms。實測 Windows 11 x64；缺媒體元件的 Windows N 或精簡系統不保證可用。
+- Windows 允許桌面程式使用相機，程式與照片資料夾可寫入，政策允許已審查的本機腳本。
+- 電子目鏡以標準 UVC 驅動工作，且本工具的 `ListDevices` 能列出它。
+- 支援 **MJPEG（`mjpeg`）或 YUY2（`yuyv422`）**，所選解析度與 fps 組合在 `ListFormats` 清單內。
+- USB 線、轉接器、頻寬與供電足夠，相機未被其他程式獨占。
+- 只測 USB 連線、預覽及存檔時，不必裝上顯微鏡。要看樣本，才需適合的光學接口、照明及對焦。
 
-若執行原則或下載檔案標記阻擋腳本，先檢查來源與組織政策；本專案不附 `Bypass`，不建議關閉整體系統保護。
+目前提供預覽與單張 PNG；沒有錄影、量測、比例尺校正、標註、景深合成或專用曝光／白平衡介面。
 
-### 裝置條件
+### 已測試的 TN2.0M-D
 
-| 條件 | 說明 |
-| --- | --- |
-| USB 影像裝置 | 優先選可使用 Windows 標準 UVC 驅動的目鏡；只有 UAC 音訊功能不夠 |
-| DirectShow 可見 | FFmpeg 能列出這個 video device；只在裝置管理員看到 VID/PID 還不夠 |
-| 相容格式 | 目前實作 MJPEG（`mjpeg`）及 YUY2（FFmpeg 名稱 `yuyv422`） |
-| 相容模式 | 設定的解析度、fps、格式組合必須由該裝置實際支援 |
-| 穩定連接 | USB 資料線、主機埠、頻寬與供電足夠；有需要才使用有供電的 Hub |
-| 可用光路 | 看顯微樣本時仍需正確安裝、照明、光學匹配與對焦；軟體不能補回未進入感測器的影像 |
+- VID/PID `055E:A165`，影像介面 `MI_00`，Microsoft `usbvideo` 功能驅動。
+- 新版已實機取得 **MJPEG 1920×1080／30 fps**、**YUY2 640×480／30 fps** 的 PNG。
+- 已驗證可見預覽、視窗拍照按鈕、查看照片、CMD 拍照後恢復預覽、含空白的自訂照片路徑。
+- YUY2 的 1080p 只有 5 fps，不能套用 MJPEG 的 30 fps。
+- 30 fps 是要求及協商的輸入模式，未驗證長時間零掉幀或顯微成像品質。完整狀態見 [測試記錄](docs/testing.md)。
 
-因此「符合 UVC」是很好的起點，**不代表所有 UVC 裝置都能使用目前的設定**。只有 H.264／H.265、專有 SDK、廠商私有 USB 協定，或僅透過網路輸出影像的型號，不在此版本的已實作範圍。依賴第三方驅動的相機即使可被 DirectShow 存取，該驅動的安全風險也仍然存在。
+VID/PID 是識別資訊，不代表一定要另裝驅動。這支目鏡已能透過標準介面工作。
 
-### 目前已測試的 TN2.0M-D
+## 使用其他型號
 
-- VID/PID：`055E:A165`，影像介面 `MI_00`。
-- Windows 使用 Microsoft `usbvideo` 功能驅動，已取得實際影像，並非只確認裝置名稱。
-- 實測 MJPEG `1920x1080 @ 30 fps`、YUY2 `640x480 @ 30 fps` 可擷取。
-- 裝置列出的 YUY2 1080p 上限較低，不能把 MJPEG 的 30 fps 直接套用到 YUY2 1080p。
-- 30 fps 是要求的輸入模式；尚未驗證長時間零掉幀、色準、量測精度或顯微樣本成像品質。
+先在程式資料夾執行：
 
-VID/PID 是識別資訊，**不是需要另外安裝驅動的證據**。這台目鏡已能透過標準介面工作，不需要安裝原配套程式來取得基本影像。
+```powershell
+powershell -NoProfile -File .\viewer.ps1 -Action ListDevices
+```
 
-## 換其他型號：通用模式
+在設定中填入精確名稱；同名裝置由 `deviceNumber` 區分，從 0 開始。再執行：
 
-1. 先在本資料夾執行列舉，找出標成 video 的精確名稱：
+```powershell
+powershell -NoProfile -File .\viewer.ps1 -Action ListFormats
+```
 
-   ```powershell
-   powershell -NoProfile -File .\viewer.ps1 -Action ListDevices
-   ```
+選擇清單中的 MJPEG／YUY2、解析度及 fps。其他列出的格式目前不提供設定選項。找不到指定目鏡時會報錯，**不會自動改用內建攝影機**。
 
-2. 在設定視窗填入該名稱；相同名稱的多台相機以 `deviceNumber` 區分，從 `0` 開始。本程式不會自動退回使用內建攝影機。
-3. 列出選定裝置實際支援的模式：
+裝置及模式清單寫在 `runtime/logs/devices.stdout.txt`、`formats.stdout.txt`；錯誤在對應的 `.stderr.txt`。
 
-   ```powershell
-   powershell -NoProfile -File .\viewer.ps1 -Action ListFormats
-   ```
+## 可攜使用與容量
 
-4. 選擇其中一組解析度、fps、格式，再測試預覽與拍照。可先用較低解析度確認連線。
-5. 回報型號、VID/PID、Windows 版本、模式與結果，參照 [測試說明](docs/testing.md)。**尚未驗證的型號不能標記為支援成功。**
+關閉預覽與控制面板後，複製整個程式資料夾到符合條件的 Windows 電腦即可。不需安裝路徑、PATH 設定、登錄修改或管理員權限。照片使用相對路徑時會一起搬移。
 
-列舉結果也會寫入 `runtime/logs/devices.stderr.txt`、`formats.stderr.txt`。FFmpeg 在列舉結束後可能輸出開啟輸入失敗字樣；先看前面有無列出裝置／模式，不能單憑這一行判定相機壞了。
+乾淨版本可直接下載 GitHub 原始碼 ZIP，第一次啟動在本機編譯；已編譯的 `bin` 也能一起攜帶。
 
-## Portable 的意思與限制
+舊版約 439 MiB，其中完整靜態版 FFmpeg／FFplay 合計約 435 MiB。新版已移除依賴，程式碼、文件與自己的執行檔為**百餘 KiB 等級**；照片和 Git 歷史另計。
 
-目前本機採用 Gyan FFmpeg 8.1.1 full static build，`ffmpeg.exe` 約 217 MiB、`ffplay.exe` 約 218 MiB，合計約 435 MiB。兩個工具各自包含影音元件，功能遠超過本程式需要的預覽與 PNG 拍照；這是沿用已測工具以便離線攜帶的取捨，不是目鏡本身需要這個容量。啟動程式與公開文件合計不足 50 KiB，GitHub 倉庫不包含這兩個 EXE。未來可評估精簡建置並重新驗證功能。
-
-配置完成後，這個資料夾包含程式、設定、`tools`、預設照片與執行資料；沒有固定帳號路徑、安裝步驟、PATH 依賴或登錄設定。關閉控制面板及預覽後，複製整個資料夾到另一台符合條件的 Windows 電腦即可。
-
-- **本機準備好的資料夾**：包含影像工具，可直接搬移。使用者照片預設保存在 photos。
-- **GitHub 原始碼 ZIP**：只包含公開程式與文件，工具需依 [tools/README.md](tools/README.md) 自行放入；不是開箱即用的完整二進位發行包。
-- 絕對照片路徑不會跟著搬；要完全隨資料夾移動，保留相對路徑。
-- Windows 驅動、相機權限、作業系統與硬體相容性仍由目的電腦提供。Portable 不等於跨作業系統，也不等於沙箱。
+原廠 StrangeView 主程式約 1.6 MiB，但另附約 42 MiB 的 FFmpeg DLL，壓縮後安裝檔約 18 MiB，不代表它沒有影音依賴。
 
 ## Android／iPad
 
-這些 Windows 啟動檔不能直接在平板執行；**同一支標準 UVC 目鏡仍保留直接接平板的可能性**，因為此工具未修改硬體。
+本程式是 Windows 版，CMD 和 EXE 不能在平板執行。這項改動不改目鏡韌體，也不影響以後把標準 UVC 目鏡接上平板。條件和既有 App 候選見 [平板說明](docs/tablets.md)。
 
-Android 需要 USB Host／OTG 與相容 UVC App；iPad 的路線是 USB-C iPad、支援外接相機的系統及 App。實際機型、供電、格式仍需驗證。現成 App 候選、限制與官方來源整理在 [平板說明](docs/tablets.md)。
+## 排除問題
 
-## 常見問題
-
-| 現象 | 處理方式 |
+| 情況 | 處理 |
 | --- | --- |
-| 不知道怎麼拍照 | 按控制面板的「拍照」，或雙擊 `02_拍照.cmd`；影像視窗沒有拍照按鈕 |
-| 拍完找不到照片 | 按「查看照片」；控制面板會顯示儲存位置及新檔完整路徑 |
-| 紅色、模糊或沒有樣本 | 先區分「有收到影像」與「光路／對焦正確」；只接 USB、對著桌面時不會自動出現顯微樣本 |
-| 相機開不起來 | 檢查相機權限、精確名稱、模式、連接，並關閉其他相機程式；看 runtime/logs |
-| 需要管理員嗎 | 正常使用不需要；不要用提高權限來掩蓋錯誤的設定或企業政策限制 |
-| 工具雜湊不符 | 停止執行並確認工具來源／版本；不要直接刪除檢查。見 tools/README.md |
-| 拍照會閃一下 | 目前採短暫釋放相機、單張擷取、恢復預覽的方式，屬預期行為 |
-| 能測量微米嗎 | 目前沒有量測介面；即使另加軟體，也需要校正片或已知尺寸，不能只靠目鏡標稱倍率 |
+| 找不到相機 | 接回 USB，確認 ListDevices 的名稱與同名序號 |
+| 模式不支援 | 使用 ListFormats 列出的格式／解析度／fps |
+| 開啟失敗 | 關閉其他相機程式，確認桌面程式相機權限與 USB |
+| 腳本被政策擋住 | 確認來源及組織政策；本程式不用 Bypass，也不改執行原則 |
+| 缺編譯器或媒體元件 | 使用含 .NET Framework 4.x 與 Media Foundation 的 Windows x64 |
+| 執行檔已改變 | 審查本地來源、關閉預覽，執行 build.ps1 重建 |
+| 紅色／模糊畫面 | 可能是桌面、未對準樣本或未對焦，請確認光路 |
+| 拍照失敗 | 檢查 runtime/logs/capture.stderr.txt 與照片位置 |
 
-## 安全性、資料與公開範圍
-
-程式使用明確相機名稱及固定動作，不讀取原廠安裝包、不啟用音訊、不自動下載工具。每次執行工具前校驗 SHA-256；停止預覽前核對程序路徑及啟動時間，避免只憑重複使用的 PID 結束其他程式。
-
-這些限制減少了依賴及意外行為，但**沒有 AppContainer、強制禁止連網、USB 韌體隔離或完整安全認證**。FFmpeg 與 Windows 仍在信任範圍；相機周邊的其他已安裝驅動亦未因此自動通過審查。
-
-`.gitignore` 採公開來源檔案白名單。`photos`、自訂照片資料夾、`settings.json`、`runtime`、舊 logs、執行檔及歷史驗證照片皆排除。提交前仍應檢查 `git diff --cached --name-only`，不要用 `git add -f` 強制加入私人資料。
+## 開發與重跑測試
 
 ```powershell
-# 不開相機的設定與工具檢查
-powershell -NoProfile -File .\viewer.ps1 -Action Check
-# 不執行影像工具、不開相機的回歸測試
+# 本機編譯，不下載套件
+powershell -NoProfile -File .\build.ps1
+
+# 不開相機，完成後清掉測試目錄
 powershell -NoProfile -File .\tests\smoke.ps1
+
+# 選用：先接上設定中的目鏡並關閉預覽
+powershell -NoProfile -File .\tests\camera.ps1 -IncludePreview
+
+# TN2.0M-D 的額外 YUY2 實測
+powershell -NoProfile -File .\tests\camera.ps1 -IncludePreview -TestYuy2
 ```
 
-## 技術來源與授權
+`src` 包含 Media Foundation 介面、影像轉換及預覽視窗；`viewer-core.ps1` 管理設定、CMD 動作與程序；`viewer-ui.ps1` 提供設定及控制面板。建置雜湊避免誤用過期或異動產物，不取代來源信任或數位簽章。
 
-- [Microsoft：UVC 驅動概觀](https://learn.microsoft.com/en-us/windows-hardware/drivers/stream/usb-video-class-driver-overview)
-- [FFmpeg：DirectShow 裝置與參數](https://ffmpeg.org/ffmpeg-devices.html#dshow)
-- [FFplay 使用說明](https://ffmpeg.org/ffplay.html)
-- [影像工具來源及配置](tools/README.md)
+沒有網路上傳、自動更新、遙測、音訊擷取、驅動安裝或解除安裝刪資料功能；仍使用 Windows 媒體元件及裝置驅動。
 
-本倉庫啟動程式及文件採 [MIT License](LICENSE)。第三方 FFmpeg／FFplay 適用各建置自身的授權，不包含在本專案 MIT 授權內。本專案與電子目鏡製造商及 StrangeView 無隸屬關係。
+API 參考：[Microsoft 相機擷取](https://learn.microsoft.com/en-us/windows/win32/medfound/video-capture)、[Source Reader](https://learn.microsoft.com/en-us/windows/win32/medfound/source-reader)、[影像 stride](https://learn.microsoft.com/en-us/windows/win32/medfound/image-stride)。
+
+本倉庫採 [MIT License](LICENSE)，與電子目鏡製造商及 StrangeView 無隸屬關係。
