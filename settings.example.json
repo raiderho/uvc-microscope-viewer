@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "deviceName": "TN2.0M-D",
+  "deviceNumber": 0,
+  "resolution": "1920x1080",
+  "fps": 30,
+  "inputFormat": "mjpeg",
+  "photoDirectory": "photos"
+}
